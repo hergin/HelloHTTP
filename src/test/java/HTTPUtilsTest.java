@@ -27,10 +27,10 @@ class HTTPUtilsTest {
 
     @Test
     void addTodoItem() throws IOException {
-        var resultingID = httpUtils.addTodoItem("Hello", "hergin");
+        var resultingID = httpUtils.addTodoItem("Wowzers", "Brayden");
         var expected = "{\n" +
-                "  \"title\": \"Hello\",\n" +
-                "  \"owner\": \"hergin\",\n" +
+                "  \"title\": \"Wowzers\",\n" +
+                "  \"owner\": \"Brayden\",\n" +
                 "  \"id\": " + resultingID + "\n" +
                 "}";
         var actual = httpUtils.getTodoItemJsonString(resultingID);
@@ -49,5 +49,4 @@ class HTTPUtilsTest {
         var nonExistingIDdeleteResult = httpUtils.deleteTodoItem(152434354);
         assertFalse(nonExistingIDdeleteResult);
     }
-
 }

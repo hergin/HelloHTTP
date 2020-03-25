@@ -3,6 +3,7 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class HTTPUtils {
@@ -21,8 +22,10 @@ public class HTTPUtils {
      * @throws IOException
      */
     public String getTodoItemJsonString(int id) throws IOException {
-        // TODO
-        return "";
+        HttpRequest getRequest = requestFactory.buildGetRequest(
+                new GenericUrl(todosURL + id));
+        String rawResponse = getRequest.execute().parseAsString();
+        return rawResponse;
     }
 
     /**
@@ -32,8 +35,23 @@ public class HTTPUtils {
      * @throws IOException
      */
     public int addTodoItem(String note, String owner) throws IOException {
-        // TODO
-        return -1;
+        Map<String, Object> data = new LinkedHashMap<>();
+        data.put("title", note);
+        data.put("owner", owner);
+        HttpContent content = new UrlEncodedContent(data);
+        HttpRequest postRequest = requestFactory.buildPostRequest(
+                new GenericUrl(todosURL),content);
+        String rawResponse = postRequest.execute().parseAsString();
+
+        char[] chars = rawResponse.toCharArray();
+        String StringID = "";
+        for (char c : chars) {
+            if (Character.isDigit(c)) {
+                StringID += c;
+            }
+        }
+        int intID = Integer.parseInt(StringID);
+        return intID;
     }
 
     /**
@@ -42,8 +60,13 @@ public class HTTPUtils {
      * @throws IOException
      */
     public boolean deleteTodoItem(int id) throws IOException {
-        // TODO
-        return false;
+        try {
+            HttpRequest deleteRequest = requestFactory.buildDeleteRequest(
+                    new GenericUrl(todosURL + id));
+            String rawResponse = deleteRequest.execute().parseAsString();
+        } catch (IOException e) {
+            return false;
+        }
+        return true;
     }
-
 }

@@ -18,10 +18,10 @@ class HTTPUtilsTest {
 
     @Test
     void getTodoItemJsonString() throws IOException {
-        var result = httpUtils.getTodoItemJsonString(2);
+        var result = httpUtils.getTodoItemJsonString(1);
         assertEquals("{\n" +
-                "  \"id\": 2,\n" +
-                "  \"title\": \"Create teams\",\n" +
+                "  \"id\": 1,\n" +
+                "  \"title\": \"Explain the project\",\n" +
                 "  \"owner\": \"hergin\"\n" +
                 "}", result);
     }

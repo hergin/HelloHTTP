@@ -1,4 +1,3 @@
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -27,10 +26,10 @@ class HTTPUtilsTest {
 
     @Test
     void addTodoItem() throws IOException {
-        var resultingID = httpUtils.addTodoItem("Hello", "hergin");
+        var resultingID = httpUtils.addTodoItem("Awesome", "real one");
         var expected = "{\n" +
-                "  \"title\": \"Hello\",\n" +
-                "  \"owner\": \"hergin\",\n" +
+                "  \"title\": \"Awesome\",\n" +
+                "  \"owner\": \"real one\",\n" +
                 "  \"id\": " + resultingID + "\n" +
                 "}";
         var actual = httpUtils.getTodoItemJsonString(resultingID);
@@ -39,7 +38,7 @@ class HTTPUtilsTest {
 
     @Test
     void deleteExistingTodoItem() throws IOException {
-        var resultingID = httpUtils.addTodoItem("Hello", "hergin");
+        var resultingID = httpUtils.addTodoItem("Task2", "CoolGuy");
         var deleteResult = httpUtils.deleteTodoItem(resultingID);
         assertTrue(deleteResult);
     }
@@ -49,5 +48,14 @@ class HTTPUtilsTest {
         var nonExistingIDdeleteResult = httpUtils.deleteTodoItem(152434354);
         assertFalse(nonExistingIDdeleteResult);
     }
+    @Test
+    void getAllTodoItems() throws IOException {
+        var todoItem1 = httpUtils.addTodoItem("Thing1", "BestGuy");
+        var todoItem2 = httpUtils.addTodoItem("Thing2", "BestGuy");
+        var expected = 2;
+        var actual = httpUtils.getAllTodoItemsJSON("BestGuy").size();
+        assertEquals(expected, actual);
+    }
+
 
 }

@@ -21,8 +21,9 @@ public class HTTPUtils {
      * @throws IOException
      */
     public String getTodoItemJsonString(int id) throws IOException {
-        // TODO
-        return "";
+        HttpRequest getRequest = requestFactory.buildGetRequest(new GenericUrl(todosURL+id));
+        String rawResponse = getRequest.execute().parseAsString();
+        return rawResponse;
     }
 
     /**
@@ -32,8 +33,14 @@ public class HTTPUtils {
      * @throws IOException
      */
     public int addTodoItem(String note, String owner) throws IOException {
-        // TODO
-        return -1;
+        Map<String,Object> data = new LinkedHashMap<>();
+        data.put("title",note);
+        data.put("owner",owner);
+        HttpContent content = new UrlEncodedContent(data);
+        HttpRequest postRequest = requestFactory.buildPostRequest(new GenericUrl(todosURL),content);
+        String rawResponse = postRequest.execute().parseAsString();
+        int resultingId = Integer.parseInt(postRequest.execute().parseAsString().replaceAll("[^\\d]",""));
+        return resultingId;
     }
 
     /**
@@ -42,8 +49,13 @@ public class HTTPUtils {
      * @throws IOException
      */
     public boolean deleteTodoItem(int id) throws IOException {
-        // TODO
-        return false;
+        try{
+            HttpRequest deleteRequest = requestFactory.buildDeleteRequest(new GenericUrl(todosURL+id));
+            String rawResponse = deleteRequest.execute().parseAsString();
+        }catch(IOException e) {
+            return false;
+        }
+        return true;
     }
 
 }

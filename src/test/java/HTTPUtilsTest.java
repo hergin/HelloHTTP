@@ -50,4 +50,10 @@ class HTTPUtilsTest {
         assertFalse(nonExistingIDdeleteResult);
     }
 
+    @Test
+    void getAllTodoItemsJSON() throws IOException
+    {
+        //do after method
+    }
+
 }

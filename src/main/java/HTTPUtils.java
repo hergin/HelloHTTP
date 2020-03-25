@@ -1,9 +1,9 @@
 import com.google.api.client.http.*;
 import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.gson.*;
 
 import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 public class HTTPUtils {
 
@@ -21,8 +21,10 @@ public class HTTPUtils {
      * @throws IOException
      */
     public String getTodoItemJsonString(int id) throws IOException {
-        // TODO
-        return "";
+        HttpRequest getRequest = requestFactory.buildGetRequest(
+                new GenericUrl(todosURL + id));
+        String rawResponse = getRequest.execute().parseAsString();
+        return rawResponse;
     }
 
     /**
@@ -32,18 +34,52 @@ public class HTTPUtils {
      * @throws IOException
      */
     public int addTodoItem(String note, String owner) throws IOException {
-        // TODO
-        return -1;
+        Map<String, Object> data = new LinkedHashMap<>();
+        data.put("title", note);
+        data.put("owner", owner);
+        HttpContent content = new UrlEncodedContent(data);
+        HttpRequest postRequest = requestFactory.buildPostRequest(
+                new GenericUrl(todosURL),content);
+        String rawResponse = postRequest.execute().parseAsString();
+        JsonParser jsonParser = new JsonParser();
+        JsonElement rootElement = jsonParser.parse(rawResponse);
+        JsonObject rootObject = rootElement.getAsJsonObject();
+        var id = rootObject.getAsJsonPrimitive("id").getAsInt();
+        return id;
     }
 
     /**
      * @param id of the todoItem to delete
-     * @return true if succesfully deleted. Otherwise false.
+     * @return true if successfully deleted. Otherwise false.
      * @throws IOException
      */
     public boolean deleteTodoItem(int id) throws IOException {
-        // TODO
-        return false;
+        try {
+            HttpRequest deleteRequest = requestFactory.buildDeleteRequest(
+                    new GenericUrl(todosURL + id));
+            String rawResponse = deleteRequest.execute().parseAsString();
+            return true;
+        } catch (IOException e){
+            return false;
+        }
+    }
+
+    public List<String> getAllTodoItemsJSON(String owner) throws IOException {
+        HttpRequest getRequest = requestFactory.buildGetRequest(
+                new GenericUrl(baseURL + owner + "/todos/"));
+        String rawResponse = getRequest.execute().parseAsString();
+
+        JsonParser jsonParser = new JsonParser();
+        JsonElement rootElement = jsonParser.parse(rawResponse);
+        JsonArray rootObjectArray = rootElement.getAsJsonArray();
+
+        List<String> jsonList = new ArrayList<>();
+        for (int i = 0; i < rootObjectArray.size(); i++) {
+            JsonObject jsonObject = rootObjectArray.get(i).getAsJsonObject();
+            String jsonObjectString = jsonObject.toString();
+            jsonList.add(jsonObjectString);
+        }
+        return jsonList;
     }
 
 }

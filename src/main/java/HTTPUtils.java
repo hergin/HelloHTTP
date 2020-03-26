@@ -21,8 +21,10 @@ public class HTTPUtils {
      * @throws IOException
      */
     public String getTodoItemJsonString(int id) throws IOException {
-        // TODO
-        return "";
+        HttpRequest getRequest = requestFactory.buildGetRequest(
+                new GenericUrl("https://todoserver222.herokuapp.com/todos/"+id));
+        String rawResponse = getRequest.execute().parseAsString();
+        return rawResponse;
     }
 
     /**
@@ -32,18 +34,31 @@ public class HTTPUtils {
      * @throws IOException
      */
     public int addTodoItem(String note, String owner) throws IOException {
-        // TODO
-        return -1;
+        Map<String, Object> data = new LinkedHashMap<>();
+        data.put("title", note);
+        data.put("owner", owner);
+        HttpContent content = new UrlEncodedContent(data);
+        HttpRequest postRequest = requestFactory.buildPostRequest(
+                new GenericUrl("https://todoserver222.herokuapp.com/todos"),content);
+        String rawResponse = postRequest.execute().parseAsString();
+        int idAddress = rawResponse.indexOf("id");
+        String resultingID = rawResponse.substring(idAddress+5,idAddress+7);
+        return Integer.parseInt(resultingID);
     }
 
     /**
      * @param id of the todoItem to delete
      * @return true if succesfully deleted. Otherwise false.
-     * @throws IOException
      */
-    public boolean deleteTodoItem(int id) throws IOException {
-        // TODO
-        return false;
+    public boolean deleteTodoItem(int id) {
+        try {
+            HttpRequest deleteRequest = requestFactory.buildDeleteRequest(
+                    new GenericUrl("https://todoserver222.herokuapp.com/todos/" + id));
+            String rawResponse = deleteRequest.execute().parseAsString();
+            return true;
+        } catch (IOException e){
+            e.printStackTrace();
+            return false;
+        }
     }
-
 }

@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.google.gson.*;
+
 public class HTTPUtils {
 
     HttpRequestFactory requestFactory;
@@ -21,8 +23,10 @@ public class HTTPUtils {
      * @throws IOException
      */
     public String getTodoItemJsonString(int id) throws IOException {
-        // TODO
-        return "";
+        HttpRequest getRequest = requestFactory.buildGetRequest(
+                new GenericUrl(todosURL+ id));
+        String rawResponse = getRequest.execute().parseAsString();
+        return rawResponse;
     }
 
     /**
@@ -32,8 +36,20 @@ public class HTTPUtils {
      * @throws IOException
      */
     public int addTodoItem(String note, String owner) throws IOException {
-        // TODO
-        return -1;
+        Map<String, Object> data = new LinkedHashMap<>();
+        data.put("title", note);
+        data.put("owner", owner);
+        HttpContent content = new UrlEncodedContent(data);
+        HttpRequest postRequest = requestFactory.buildPostRequest(
+                new GenericUrl("https://todoserver222.herokuapp.com/todos"),content);
+        String rawResponse = postRequest.execute().parseAsString();
+        //Extract the ID
+        JsonParser jsonParser = new JsonParser();
+        JsonElement rootElement = jsonParser.parse(rawResponse);
+        JsonObject rootObject = rootElement.getAsJsonObject();
+        String extractId = rootObject.getAsJsonPrimitive("id").toString();
+        int id=Integer.parseInt(extractId);
+        return id;
     }
 
     /**
@@ -42,8 +58,14 @@ public class HTTPUtils {
      * @throws IOException
      */
     public boolean deleteTodoItem(int id) throws IOException {
-        // TODO
-        return false;
+        try {
+            HttpRequest deleteRequest = requestFactory.buildDeleteRequest(
+                    new GenericUrl(todosURL + id));
+            String rawResponse = deleteRequest.execute().parseAsString();
+            return true;
+        } catch (IOException e){
+            return false;
+        }
     }
 
 }

@@ -1,9 +1,16 @@
 import com.google.api.client.http.*;
 import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.JsonParser;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.*;
+
+import static java.lang.Integer.parseInt;
+
 
 public class HTTPUtils {
 
@@ -21,8 +28,10 @@ public class HTTPUtils {
      * @throws IOException
      */
     public String getTodoItemJsonString(int id) throws IOException {
-        // TODO
-        return "";
+        HttpRequest getRequest = requestFactory.buildGetRequest(
+                new GenericUrl(todosURL + id));
+        String getItem = getRequest.execute().parseAsString();
+        return getItem;
     }
 
     /**
@@ -32,8 +41,20 @@ public class HTTPUtils {
      * @throws IOException
      */
     public int addTodoItem(String note, String owner) throws IOException {
-        // TODO
-        return -1;
+        Map<String, Object> data = new LinkedHashMap<>();
+        data.put("title", note);
+        data.put("owner", owner);
+        HttpContent content = new UrlEncodedContent(data);
+        HttpRequest postRequest = requestFactory.buildPostRequest(
+                new GenericUrl("https://todoserver222.herokuapp.com/todos"),content);
+        String response = postRequest.execute().parseAsString();
+        Integer One = response.indexOf("}") - 4;
+        Integer Two = response.indexOf("}") - 1;
+        var rawID = response.substring(One,Two);
+        rawID = rawID.trim();
+        int id = parseInt(rawID);
+        return id;
+
     }
 
     /**
@@ -42,8 +63,24 @@ public class HTTPUtils {
      * @throws IOException
      */
     public boolean deleteTodoItem(int id) throws IOException {
-        // TODO
-        return false;
+        try {
+            HttpRequest deleteRequest = requestFactory.buildDeleteRequest(
+                    new GenericUrl("https://todoserver222.herokuapp.com/todos/" + id));
+            String response = deleteRequest.execute().parseAsString();
+            return true;
+        }
+        catch (IOException e) {
+            return false;
+        }
+    }
+    public List<String> getAllTodoItems(String owner) throws IOException {
+        HttpRequest getRequest = requestFactory.buildGetRequest(
+                new GenericUrl("https://todoserver222.herokuapp.com/" + owner + "/todos/"));
+        String rawResponse = getRequest.execute().parseAsString();
+        String str[] = rawResponse.split("},");
+        List<String> toDoItemsList = new ArrayList<>();
+        toDoItemsList = Arrays.asList(str);
+        return toDoItemsList;
     }
 
 }

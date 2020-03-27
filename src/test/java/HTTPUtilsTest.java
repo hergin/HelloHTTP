@@ -50,4 +50,15 @@ class HTTPUtilsTest {
         assertFalse(nonExistingIDdeleteResult);
     }
 
+    @Test
+    void getAllTodoItems() throws IOException {
+        var item1 = httpUtils.addTodoItem("Thing1", "ChillGuy");
+        var item2 = httpUtils.addTodoItem("Thing2", "ChillGuy");
+        var expected = 2;
+        var actual = httpUtils.getAllTodoItems("ChillGuy").size();
+        assertEquals(expected, actual);
+    }
+
+
+
 }

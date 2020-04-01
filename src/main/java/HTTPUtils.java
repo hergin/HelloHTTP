@@ -21,8 +21,10 @@ public class HTTPUtils {
      * @throws IOException
      */
     public String getTodoItemJsonString(int id) throws IOException {
-        // TODO
-        return "";
+        HttpRequest getRequest = requestFactory.buildGetRequest(
+                new GenericUrl(todosURL + id));
+        String rawResponse = getRequest.execute().parseAsString();
+        return rawResponse;
     }
 
     /**
@@ -32,8 +34,21 @@ public class HTTPUtils {
      * @throws IOException
      */
     public int addTodoItem(String note, String owner) throws IOException {
-        // TODO
-        return -1;
+        Map<String, Object> data = new LinkedHashMap<>();
+        data.put("title", note);
+        data.put("owner", owner);
+        HttpContent content = new UrlEncodedContent(data);
+        HttpRequest postRequest = requestFactory.buildPostRequest(
+                new GenericUrl(todosURL), content);
+        String rawResponse = postRequest.execute().parseAsString();
+
+        var resultID = "";
+        for (var ch : rawResponse.toCharArray()) {
+            if (Character.isDigit(ch)) {
+                resultID += ch;
+            }
+        }
+        return Integer.parseInt(resultID);
     }
 
     /**
@@ -42,8 +57,38 @@ public class HTTPUtils {
      * @throws IOException
      */
     public boolean deleteTodoItem(int id) throws IOException {
-        // TODO
-        return false;
+        HttpRequest deleteRequest = requestFactory.buildDeleteRequest(
+                new GenericUrl(todosURL + id));
+        try {
+            String rawResponse = deleteRequest.execute().parseAsString();
+        } catch (HttpResponseException hre) {
+            return false;
+        }
+        return true;
     }
 
+    /**
+     * Update an existing todoItem.
+     *
+     * @param id    of the existing todoItem
+     * @param note  new note
+     * @param owner new owner
+     * @return true if it succesfully updates. false if ID doesn't exist!
+     */
+    public boolean updateTodoItem(int id, String note, String owner) throws IOException {
+        Map<String, Object> data = new LinkedHashMap<>();
+        data.put("id", id);
+        data.put("title", note);
+        data.put("owner", owner);
+        HttpContent content = new UrlEncodedContent(data);
+        HttpRequest putRequest = requestFactory.buildPutRequest(
+                new GenericUrl(todosURL + id), content);
+        try {
+            String rawResponse = putRequest.execute().parseAsString();
+        } catch (HttpResponseException hre) {
+            return false;
+        }
+
+        return true;
+    }
 }
